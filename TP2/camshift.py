@@ -26,14 +26,13 @@ Keys:
 from __future__ import print_function
 import sys
 import getopt
+import numpy as np
+import cv2 as cv
+
 PY3 = sys.version_info[0] == 3
 
 if PY3:
     xrange = range
-
-import numpy as np
-import cv2 as cv
-
 
 # local module
 import video
@@ -53,11 +52,11 @@ class FaceDetect():
         self.cascade = cv.CascadeClassifier(cv.samples.findFile(cascade_fn))
         nested = cv.CascadeClassifier(cv.samples.findFile(nested_fn))
 
-    def detect(self,img):
+    def detect(self, img):
         gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         gray = cv.equalizeHist(gray)
         rects = self.cascade.detectMultiScale(img, scaleFactor=1.3, minNeighbors=4, minSize=(30, 30),
-                                         flags=cv.CASCADE_SCALE_IMAGE)
+                                              flags=cv.CASCADE_SCALE_IMAGE)
         if len(rects) == 0:
             return []
         rects[:, 2:] += rects[:, :2]
@@ -77,21 +76,6 @@ class App(object):
         self.face_find = False
         self.track_window = None
 
-
-    # def onmouse(self, event, x, y, flags, param):
-    #     if event == cv.EVENT_LBUTTONDOWN:
-    #         self.drag_start = (x, y)
-    #         self.track_window = None
-    #     if self.drag_start:
-    #         xmin = min(x, self.drag_start[0])
-    #         ymin = min(y, self.drag_start[1])
-    #         xmax = max(x, self.drag_start[0])
-    #         ymax = max(y, self.drag_start[1])
-    #         self.selection = (xmin, ymin, xmax, ymax)
-    #     if event == cv.EVENT_LBUTTONUP:
-    #         self.drag_start = None
-    #         self.track_window = (xmin, ymin, xmax - xmin, ymax - ymin)
-
     def show_hist(self):
         bin_count = self.hist.shape[0]
         bin_w = 24
@@ -103,7 +87,6 @@ class App(object):
         img = cv.cvtColor(img, cv.COLOR_HSV2BGR)
         cv.imshow('hist', img)
 
-
     def run(self):
         while True:
             _ret, self.frame = self.cam.read()
@@ -111,30 +94,30 @@ class App(object):
             vis = self.frame.copy()
             hsv = cv.cvtColor(self.frame, cv.COLOR_BGR2HSV)
             mask = cv.inRange(hsv, np.array((0., 60., 32.)), np.array((180., 255., 255.)))
-            if not self.selection and self.face_find == False:
+            if not self.selection and not self.face_find:
                 face_detect = FaceDetect()
                 face_detect.initialization()
                 rects = face_detect.detect(self.frame)
                 if len(rects):
                     self.face_find = True
                     self.selection = rects[0]
-                    xmin = min(self.selection[0],self.selection[2])
-                    xmax = max(self.selection[0],self.selection[2])
-                    ymin = min(self.selection[1],self.selection[3])
-                    ymax = max(self.selection[1],self.selection[3])
-                    self.selection = (xmin,ymin,xmax,ymax)
-                    self.track_window = (xmin,ymin,xmax-xmin,ymax-ymin)
+                    xmin = min(self.selection[0], self.selection[2])
+                    xmax = max(self.selection[0], self.selection[2])
+                    ymin = min(self.selection[1], self.selection[3])
+                    ymax = max(self.selection[1], self.selection[3])
+                    self.selection = (xmin, ymin, xmax, ymax)
+                    self.track_window = (xmin, ymin, xmax - xmin, ymax - ymin)
 
             if self.selection:
                 x0, y0, x1, y1 = self.selection
                 hsv_roi = hsv[y0:y1, x0:x1]
                 mask_roi = mask[y0:y1, x0:x1]
-                hist = cv.calcHist([hsv_roi], # 原图
-                                   [0], #channels，用于计算直方图的通道，灰度图是[1]，
+                hist = cv.calcHist([hsv_roi],  # 原图
+                                   [0],  # channels，用于计算直方图的通道，灰度图是[1]，
                                    # 彩色图可以用[0],[1],[2]来分别计算蓝，绿，红
-                                   mask_roi, # 掩图，想找到特定区域的hisogram使使用
-                                   [16], # hitsize BIN的数量，表示直方图分成多少分（即有多少个柱子）
-                                   [0, 180]) # ??
+                                   mask_roi,  # 掩图，想找到特定区域的histogram使使用
+                                   [16],  # hitsize BIN的数量，表示直方图分成多少分（即有多少个柱子）
+                                   [0, 180])  # ??
                 cv.normalize(hist, hist, 0, 255, cv.NORM_MINMAX)
                 self.hist = hist.reshape(-1)
                 self.show_hist()
@@ -145,23 +128,24 @@ class App(object):
 
             if self.track_window and self.track_window[2] > 0 and self.track_window[3] > 0:
                 self.selection = None
-                prob = cv.calcBackProject([hsv], # image
-                                          [0], # channels
-                                          self.hist, # input histogram
-                                          [0, 180], # Destination back projection array that is a single-channel
+                prob = cv.calcBackProject([hsv],  # image
+                                          [0],  # channels
+                                          self.hist,  # input histogram
+                                          [0, 180],  # Destination back projection array that is a single-channel
                                           #  array of the same size and depth as images
                                           1)
                 prob[y0:y1, x0:x1] = 0
                 prob &= mask
                 term_crit = (cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT, 10, 1)
-                track_box, self.track_window = cv.CamShift(prob,   # Back projection of the object histogram
-                                                           self.track_window,   # Initial search window
+                track_box, self.track_window = cv.CamShift(prob,  # Back projection of the object histogram
+                                                           self.track_window,  # Initial search window
                                                            term_crit)
 
                 if self.show_backproj:
                     vis[:] = prob[..., np.newaxis]
                 try:
                     cv.ellipse(vis, track_box, (0, 0, 255), 2)
+                    cv.rectangle(vis, (x0, y0), (x1, y1), (0, 255, 255), 2)
                 except:
                     print(track_box)
 
@@ -182,7 +166,6 @@ if __name__ == '__main__':
         video_src = sys.argv[1]
     except:
         video_src = 0
-
 
     print(__doc__)
     App(video_src).run()
