@@ -28,6 +28,7 @@ import sys
 import getopt
 import numpy as np
 import cv2 as cv
+import pandas as pd
 
 PY3 = sys.version_info[0] == 3
 
@@ -140,7 +141,7 @@ class App(object):
                 track_box, self.track_window = cv.CamShift(prob,  # Back projection of the object histogram
                                                            self.track_window,  # Initial search window
                                                            term_crit)
-
+                trackwin = self.track_window
                 if self.show_backproj:
                     vis[:] = prob[..., np.newaxis]
                 try:
@@ -150,12 +151,32 @@ class App(object):
                     print(track_box)
 
             cv.imshow('camshift', vis)
+            # if cv.waitKey(10) == 32:
+            #     # letterC = prob[self.track_window[0]:self.track_window[1], self.track_window[2]:self.track_window[3]]
+            #     try:
+            #         cv.imwrite('hand.jpg',self.track_window)
+            #         print('save successful')
+            #     except:
+            #         print('save failed')
 
             ch = cv.waitKey(5)
             if ch == 27:
                 break
             if ch == ord('b'):
                 self.show_backproj = not self.show_backproj
+            if ch == 32:
+                # letterC = prob[self.track_window[0]:self.track_window[1], self.track_window[2]:self.track_window[3]]
+                try:
+                    xs0,ys0,xs1,ys1 = self.track_window
+                    prob_hand = prob[ys0:ys1+ys0, xs0:xs1+xs0]
+                    color_hand = vis[ys0:ys1+ys0, xs0:xs1+xs0]
+                    # cv.imwrite('hand.png',vis[self.track_window[0]:self.track_window[1], self.track_window[2]:self.track_window[3]])
+                    cv.imwrite('D:/pythonProject/ComputerVision/TP2/files/handphoto/color.png', color_hand)
+                    cv.imwrite('D:/pythonProject/ComputerVision/TP2/files/handphoto/prob.png', prob_hand)
+                    np.savetxt('D:/pythonProject/ComputerVision/TP2/files/csv/my.csv', prob_hand)
+                    print('save successful')
+                except:
+                    print('save failed')
         cv.destroyAllWindows()
 
 
