@@ -157,12 +157,14 @@ class App(object):
             if ch == ord('c'):
                 try:
                     xs0, ys0, xs1, ys1 = self.track_window
-                    prob_hand = prob[ys0:ys1 + ys0+20, xs0:xs1 + xs0+20]  # get back project image
-                    color_hand = vis[ys0:ys1 + ys0+20, xs0:xs1 + xs0+20]  # get normal image
-                    cv.imwrite('D:/pythonProject/ComputerVision/TP2/files/handphoto/color.png', color_hand)
-                    cv.imwrite('D:/pythonProject/ComputerVision/TP2/files/handphoto/prob.png', prob_hand)
-                    prob_hand = cv.resize(prob_hand, dsize=(16, 16))  # resize it to 16x16
-                    np.savetxt('D:/pythonProject/ComputerVision/TP2/files/csv/training_set.txt', prob_hand)  # save the matrix of back project
+                    prob_hand = prob[ys0:ys1 + ys0+50, xs0:xs1 + xs0+50]  # get back project image
+                    small_pic = cv.resize(prob_hand, dsize=(16, 16))  # resize it to 16x16
+                    large_pic = cv.resize(prob_hand, dsize=(224, 224))  # resize it to 16x16
+                    print(small_pic.shape)
+                    cv.imwrite('D:/pythonProject/ComputerVision/TP2/files/handphoto/small.png', small_pic)
+                    cv.imwrite('D:/pythonProject/ComputerVision/TP2/files/handphoto/large.png', large_pic)
+                    samples = small_pic.reshape((1,256))
+                    np.savetxt('D:/pythonProject/ComputerVision/TP2/files/csv/training_set.txt', samples)  # save the matrix of back project
                     #  as .txt
                     print('saved')
                 except:

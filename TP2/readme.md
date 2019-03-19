@@ -16,10 +16,11 @@ Fortunately, we can solve the two problems together by using the **Face detect**
 So now the CamShift is responsible for the tracking(see also [meanshift and camshift](https://github.com/wangzeyao/ComputerVision/blob/master/Markdowns/MeanShift.md))  and the face detection find the face and wipe its probability of it, problem solved.
 
 ### Result
-
-![colorful photo](https://lh3.googleusercontent.com/6HxHrem6aAD9bM8Zk2A43b5z9dFM8MF4_9QFZbzFZ9JEnbPemBy4QOeYSCcjK68ld1Hi1CgBwyQf "colorful")
-![enter image description here](https://lh3.googleusercontent.com/H3EuGk0ECrOhvjLbq4DKDU9XV6lOUndeTKMwqzHbEO4gyKYm_iVdlINsL77aSY7loC1343-2vzOd)
 **LOVE & PEACE**
+![enter image description here](https://lh3.googleusercontent.com/COe2BDRsrUkzFu8kQ7_owF7PAwuzftFNP2CMXnhpAUPND-Z23veVAi_6VeYWOxnklT4I6-qk8POi)
+small pic
+![enter image description here](https://lh3.googleusercontent.com/ucfznrvRkR2gOcV3CTDeSMNVg8RMAupYQE3l7KxX6UG9s1Wm8Z8kU2CPTF677D9f1Mh0f_74BdyM)
+
 
 And the matrix which contain the probabiltiy after resized to 16X16![enter image description here](https://lh3.googleusercontent.com/aQelvcsRgM2wn7uPCuxZxa8l-eqPfAwmnhaLyKiGmLr9_HbllHoW8iDX7J1GScJvnd_1Az0CAUQn)
 It's for the next step: **Train a neural network to recogenize our hand gesture.**
