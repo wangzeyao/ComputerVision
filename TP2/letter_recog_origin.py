@@ -31,23 +31,13 @@ from __future__ import print_function
 import numpy as np
 import cv2 as cv
 
-def load_base(path):
-    data = np.loadtxt(path, np.float32, delimiter=',', converters={ 0 : lambda ch : ord(ch)-ord('A') })
-    # data = np.loadtxt(path,np.float32,delimiter=' ')
-    # file = open(path,'r')
-    # count = len(open(path, 'rU').readlines())
-    # data = np.zeros((count,257))
-    # for line in file:
-    #     line = line.split(' ')
-    #     temp = np.zeros((1,257))
-    #     for i in range(257):
-    #         temp[i] = int(line[i])
-    #         np.vstack(data,temp)
-    samples, responses = data[:,1:], data[:,0]
+def load_base(fn):
+    a = np.loadtxt(fn, np.float32, delimiter=',', converters={ 0 : lambda ch : ord(ch)-ord('A') })
+    samples, responses = a[:,1:], a[:,0]
     return samples, responses
 
 class LetterStatModel(object):
-    class_n = 3
+    class_n = 26
     train_ratio = 0.5
 
     def load(self, fn):
@@ -167,14 +157,13 @@ if __name__ == '__main__':
 
     args, dummy = getopt.getopt(sys.argv[1:], '', ['model=', 'data=', 'load=', 'save='])
     args = dict(args)
-    args.setdefault('--model', 'mlp')
+    args.setdefault('--model', 'svm')
     args.setdefault('--data', 'letter-recognition.data')
 
-    # datafile = cv.samples.findFile(args['--data'])
+    datafile = cv.samples.findFile(args['--data'])
 
-    # print('loading data %s ...' % datafile)
-    print('loading data %s ...')
-    samples, responses = load_base('D:/pythonProject/ComputerVision/TP2/files/csv/training_set.txt')
+    print('loading data %s ...' % datafile)
+    samples, responses = load_base(datafile)
     Model = models[args['--model']]
     model = Model()
 

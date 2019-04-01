@@ -30,6 +30,7 @@ import numpy as np
 import cv2 as cv
 import video
 from video import presets
+import os
 
 PY3 = sys.version_info[0] == 3
 
@@ -81,6 +82,19 @@ class App(object):
                          (int(180.0 * i / bin_count), 255, 255), -1)
         img = cv.cvtColor(img, cv.COLOR_HSV2BGR)
         cv.imshow('hist', img)
+
+    def writeTxt(self,letter,pic):
+        file = open('D:/pythonProject/ComputerVision/TP2/files/csv/training_set.txt', 'a')
+        samples = pic.reshape((1, 256))
+        file.write(letter+',')
+        for i in range(256):
+            if i == 255:
+                file.write(str(samples[0][i]))
+            else:
+                file.write(str(samples[0][i]) + ',')
+        file.write('\n')
+        file.close()
+        print('writed')
 
     def run(self):  # main loop
         face_detect = FaceDetect()  # i put the creation of the object and the initialization
@@ -155,20 +169,31 @@ class App(object):
             if ch == ord('b'):
                 self.show_backproj = not self.show_backproj
             if ch == ord('c'):
-                try:
-                    xs0, ys0, xs1, ys1 = self.track_window
-                    prob_hand = prob[ys0:ys1 + ys0+50, xs0:xs1 + xs0+50]  # get back project image
-                    small_pic = cv.resize(prob_hand, dsize=(16, 16))  # resize it to 16x16
-                    large_pic = cv.resize(prob_hand, dsize=(224, 224))  # resize it to 16x16
-                    print(small_pic.shape)
-                    cv.imwrite('D:/pythonProject/ComputerVision/TP2/files/handphoto/small.png', small_pic)
-                    cv.imwrite('D:/pythonProject/ComputerVision/TP2/files/handphoto/large.png', large_pic)
-                    samples = small_pic.reshape((1,256))
-                    np.savetxt('D:/pythonProject/ComputerVision/TP2/files/csv/training_set.txt', samples)  # save the matrix of back project
-                    #  as .txt
-                    print('saved')
-                except:
-                    print('save failed')
+                xs0, ys0, xs1, ys1 = self.track_window
+                prob_hand = prob[ys0:ys1 + ys0 + 50, xs0:xs1 + xs0 + 350]  # get back project image
+                print('c: ',ys0,':',ys1,'+',ys0+50,'  ',xs0,':',xs1,'+',xs0+350)
+                small_pic = cv.resize(prob_hand, dsize=(16, 16))  # resize it to 16x16
+                large_pic = cv.resize(prob_hand, dsize=(224, 224))  # resize it to 16x16
+                cv.imwrite('D:/pythonProject/ComputerVision/TP2/files/handphoto/c.png',small_pic)
+                self.writeTxt(letter='C',pic=small_pic)
+            elif ch == ord('i'):
+                xs0, ys0, xs1, ys1 = self.track_window
+                prob_hand = prob[ys0:ys1 + ys0 + 100, xs0:xs1 + xs0 + 100]  # get back project image
+                print('i: ', ys0, ':', ys1, '+',ys0+ 100, '  ', xs0, ':', xs1+xs0+100)
+                small_pic = cv.resize(prob_hand, dsize=(16, 16))  # resize it to 16x16
+                large_pic = cv.resize(prob_hand, dsize=(224, 224))  # resize it to 16x16
+                self.writeTxt(letter='I',pic=small_pic)
+                cv.imwrite('D:/pythonProject/ComputerVision/TP2/files/handphoto/i.png',small_pic)
+            elif ch == ord('o'):
+                xs0, ys0, xs1, ys1 = self.track_window
+                prob_hand = prob[ys0:ys1 + ys0 + 100, xs0:xs1 + xs0 + 100]  # get back project image
+                print('o: ', prob_hand)
+                small_pic = cv.resize(prob_hand, dsize=(16, 16))  # resize it to 16x16
+                large_pic = cv.resize(prob_hand, dsize=(224, 224))  # resize it to 16x16
+                self.writeTxt(letter='O',pic=small_pic)
+                cv.imwrite('D:/pythonProject/ComputerVision/TP2/files/handphoto/o.png',small_pic)
+
+
         cv.destroyAllWindows()
 
 
