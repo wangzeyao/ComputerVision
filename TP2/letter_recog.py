@@ -33,21 +33,11 @@ import cv2 as cv
 
 def load_base(path):
     data = np.loadtxt(path, np.float32, delimiter=',', converters={ 0 : lambda ch : ord(ch)-ord('A') })
-    # data = np.loadtxt(path,np.float32,delimiter=' ')
-    # file = open(path,'r')
-    # count = len(open(path, 'rU').readlines())
-    # data = np.zeros((count,257))
-    # for line in file:
-    #     line = line.split(' ')
-    #     temp = np.zeros((1,257))
-    #     for i in range(257):
-    #         temp[i] = int(line[i])
-    #         np.vstack(data,temp)
     samples, responses = data[:,1:], data[:,0]
     return samples, responses
 
 class LetterStatModel(object):
-    class_n = 3
+    class_n = 26
     train_ratio = 0.5
 
     def load(self, fn):
@@ -138,7 +128,7 @@ class MLP(LetterStatModel):
     def train(self, samples, responses):
         _sample_n, var_n = samples.shape
         new_responses = self.unroll_responses(responses).reshape(-1, self.class_n)
-        layer_sizes = np.int32([var_n, 100, 100, self.class_n])
+        layer_sizes = np.int32([var_n, 10, self.class_n])
 
         self.model.setLayerSizes(layer_sizes)
         self.model.setTrainMethod(cv.ml.ANN_MLP_BACKPROP)
@@ -169,6 +159,8 @@ if __name__ == '__main__':
     args = dict(args)
     args.setdefault('--model', 'mlp')
     args.setdefault('--data', 'letter-recognition.data')
+    # args.setdefault('--load', 'trained.xml')
+    # args.setdefault('--save', 'trained.xml')
 
     # datafile = cv.samples.findFile(args['--data'])
 
@@ -184,13 +176,14 @@ if __name__ == '__main__':
         print('loading model from %s ...' % fn)
         model.load(fn)
     else:
+
         print('training %s ...' % Model.__name__)
         model.train(samples[:train_n], responses[:train_n])
 
     print('testing...')
     train_rate = np.mean(model.predict(samples[:train_n]) == responses[:train_n].astype(int))
     test_rate  = np.mean(model.predict(samples[train_n:]) == responses[train_n:].astype(int))
-
+    predict = model.predict(samples[train_n:])
     print('train rate: %f  test rate: %f' % (train_rate*100, test_rate*100))
 
     if '--save' in args:

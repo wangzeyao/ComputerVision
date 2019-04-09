@@ -159,6 +159,7 @@ if __name__ == '__main__':
     args = dict(args)
     args.setdefault('--model', 'svm')
     args.setdefault('--data', 'letter-recognition.data')
+    args.setdefault('--save', 'trained_nn')
 
     datafile = cv.samples.findFile(args['--data'])
 
