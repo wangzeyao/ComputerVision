@@ -200,9 +200,9 @@ class App(object):
             elif ch == ord('p'):
                 xs0, ys0, xs1, ys1 = self.track_window
                 small_pic = cv.resize(prob[ys0:ys1 + ys0, xs0:xs1 + xs0], dsize=(16, 16))
-                small_pic = small_pic.reshape((1, 256))
                 small_pic = small_pic.astype(np.float32)
-                print(lcn.prediction(small_pic))
+                print('MLP:',lcn.MLP_prediction(small_pic))
+                print('CNN',lcn.CNN_prediction(small_pic))
 
 
         cv.destroyAllWindows()

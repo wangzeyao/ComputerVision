@@ -1,7 +1,7 @@
 import numpy as np
 import cv2 as cv
-
-
+from keras.models import load_model
+model = load_model('CNN_model')
 class LetterStatModel(object):
     class_n = 26
     train_ratio = 0.5
@@ -48,10 +48,25 @@ class MLP(LetterStatModel):
         return resp.argmax(-1)
 
 
-def prediction(image):
+def MLP_prediction(image):
     mlp = MLP()
     mlp.load('model')
+    image = image.reshape(1, 256)
     result = mlp.predict(image)
     result = chr(65+result)
     return result
+
+def CNN_prediction(image):
+
+    image = image.reshape((1,)+(16, 16, 1))
+    result = model.predict(image)
+    result = result.argmax(axis=1)
+    if result == 0:
+        return 'C'
+    elif result == 1:
+        return 'V'
+    elif result == 2:
+        return 'I'
+    elif result == 3:
+        return 'O'
 

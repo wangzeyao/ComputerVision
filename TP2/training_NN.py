@@ -2,14 +2,24 @@ from __future__ import print_function
 
 import numpy as np
 import cv2 as cv
+from keras.utils import np_utils
 
 def load_base(path):
-    data = np.loadtxt(path, np.float32, delimiter=',', converters={ 0 : lambda ch : ord(ch)-ord('A') })
+    # data = np.loadtxt(path, np.float32, delimiter=',', converters={ 0 : lambda ch : ord(ch)-ord('A') })
+    data = np.loadtxt(path, np.float32, delimiter=',', converters={0: lambda ch : convertFun(ord(ch))})
     samples, responses = data[:,1:], data[:,0]
     return samples, responses
-
+def convertFun(letter):
+    if chr(letter) == 'C':
+        return 0
+    elif chr(letter) == 'V':
+        return 1
+    elif chr(letter) == 'I':
+        return 2
+    elif chr(letter) == 'O':
+        return 3
 class LetterStatModel(object):
-    class_n = 26
+    class_n = 4
     train_ratio = 0.5
 
     def load(self, fn):
@@ -25,10 +35,12 @@ class LetterStatModel(object):
         return new_samples
 
     def unroll_responses(self, responses):
-        sample_n = len(responses)
-        new_responses = np.zeros(sample_n*self.class_n, np.int32)
-        resp_idx = np.int32( responses + np.arange(sample_n)*self.class_n )
-        new_responses[resp_idx] = 1
+        new_responses = responses
+        # sample_n = len(responses)
+        # new_responses = np.zeros(sample_n*self.class_n, np.int32)
+        # resp_idx = np.int32( responses + np.arange(sample_n)*self.class_n )
+        # new_responses[resp_idx] = 1
+        new_responses = np_utils.to_categorical(responses, 4)
         return new_responses
 
 class MLP(LetterStatModel):
@@ -73,7 +85,7 @@ if __name__ == '__main__':
     samples, responses = load_base('D:/pythonProject/ComputerVision/TP2/files/csv/training_set.txt')
     Model = models[args['--model']]
     result = {}
-    hyperparameters = range(50,100)
+    hyperparameters = range(47,48)
     for i in range(len(hyperparameters)):
         model = Model()
         train_n = int(len(samples) * model.train_ratio)
@@ -90,13 +102,14 @@ if __name__ == '__main__':
         test_rate = np.mean(model.predict(samples[train_n:]) == responses[train_n:].astype(int))
         sample = samples[train_n:]
         result[hyperparameters[i]] = test_rate
-        # predict = model.predict(samples[train_n:])
+        predict = model.predict(samples[train_n:])
+        print(predict)
         # print('train rate: %f  test rate: %f' % (train_rate * 100, test_rate * 100))
 
-        # if '--save' in args:
-        #     fn = args['--save']
-        #     print('saving model to %s ...' % fn)
-        #     model.save('model1')
+        if '--save' in args:
+            fn = args['--save']
+            # print('saving model to %s ...' % fn)
+            model.save('model')
         cv.destroyAllWindows()
     max = 0
     best = 0
