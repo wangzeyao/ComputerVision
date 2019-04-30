@@ -34,28 +34,30 @@ batch_size = [64]
 epoch = range(30, 31)
 model = ['CNN_model_LeNet', 'CNN_model_simple']
 
-for e in epoch:
-    Y.append(e)
-    for size in batch_size:
-        for i in range(k):
-            model = CNN.LeNet()
-            model.compile(loss='categorical_crossentropy',
-                          optimizer=CNN.adam,
-                          metrics=['accuracy']  # 评价函数
-                          )
-            model.fit(kfold[0][i], kfold[1][i],
-                      epochs=e,
-                      batch_size=size,
-                      verbose=0)
-            score = model.evaluate(kfold[2][i], kfold[3][i], verbose=0)
-            cv_scores.append(score[1] * 100)
+if __name__ == '__main__':
+    for e in epoch:
+        for size in batch_size:
+            for i in range(k):
+                print(i,kfold[0][i].shape)
+                model = CNN.LeNet(kernel_size=(3, 3), activation='relu')
+                model.compile(loss='categorical_crossentropy',
+                              optimizer=CNN.adam,
+                              metrics=['accuracy']  # 评价函数
+                              )
+                model.fit(kfold[0][i], kfold[1][i],
+                          epochs=e,
+                          batch_size=size,
+                          verbose=0)
+                score = model.evaluate(kfold[2][i], kfold[3][i], verbose=0)
+                cv_scores.append(score[1] * 100)
+                print("%s: %.2f%%" % (model.metrics_names[1], score[1] * 100))
 
-        print("%.2f%% (+/- %.2f%%)" % (np.mean(cv_scores), np.std(cv_scores)), 'batch_size:', size, 'epoch:', e)
+            print("%.2f%% (+/- %.2f%%)" % (np.mean(cv_scores), np.std(cv_scores)), 'batch_size:', size, 'epoch:', e)
 
-for mod in model:
-    for i in range(k):
-        model = load_model(mod)
-        score = model.evaluate(kfold[2][i], kfold[3][i], verbose=0)
-        cv_scores.append(score[1] * 100)
-        print("%s: %.2f%%" % (model.metrics_names[1], score[1] * 100))
-    print("%.2f%% (+/- %.2f%%)" % (np.mean(cv_scores), np.std(cv_scores)), 'model:', mod)
+    # for mod in model:
+    #     for i in range(k):
+    #         model = load_model(mod)
+    #         score = model.evaluate(kfold[2][i], kfold[3][i], verbose=0)
+    #         cv_scores.append(score[1] * 100)
+    #         print("%s: %.2f%%" % (model.metrics_names[1], score[1] * 100))
+    #     print("%.2f%% (+/- %.2f%%)" % (np.mean(cv_scores), np.std(cv_scores)), 'model:', mod)

@@ -14,7 +14,7 @@ import Conv_vis
 from keras import backend as K
 import matplotlib.pyplot as plt
 
-# np.random.seed(3)
+# np.random.seed(2019)
 path = 'D:/pythonProject/ComputerVision/TP2/files/csv/training_set.txt'
 img_row, img_col = 16, 16
 nb_class = 4
@@ -107,12 +107,12 @@ def LeNet(kernel_size=(5, 5), activation='tanh'):
                                strides=(2, 2),
                                padding='valid'))
 
-    model.add(Conv2D(120,
-                     kernel_size=(3, 3),
-                     strides=(1, 1),
-                     padding='valid',
-                     activation=activation,
-                     name='Conv3'))
+    # model.add(Conv2D(120,
+    #                  kernel_size=(3, 3),
+    #                  strides=(1, 1),
+    #                  padding='valid',
+    #                  activation=activation,
+    #                  name='Conv3'))
 
     model.add(Flatten())
 
@@ -124,6 +124,8 @@ def LeNet(kernel_size=(5, 5), activation='tanh'):
 
     model.add(Dense(units=4,
                     activation='softmax'))
+
+    # model.summary()
     return model
 
 
@@ -136,7 +138,7 @@ def simpleCNN(kernel_size=(3, 3), activation='relu'):
                      activation=activation
                      ))
     model.add(MaxPooling2D(pool_size=(nb_pool, nb_pool)))
-    model.add(Dropout(0.2))
+    # model.add(Dropout(0.2))
     model.add(Flatten())
     model.add(Dense(units=128, activation=activation))
     model.add(Dense(units=4, activation='softmax'))

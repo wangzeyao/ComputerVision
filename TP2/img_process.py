@@ -29,7 +29,7 @@ def numToLetter(num):
 path = 'D:/pythonProject/ComputerVision/TP2/files/csv/training_set.txt'
 data = np.loadtxt(path, np.float32, delimiter=',', converters={0: lambda ch: convertFun(ord(ch))})
 
-index = np.random.randint(low=0, high=1511, size=1000)  # make random index to get picture
+index = np.random.randint(low=0, high=1511, size=20000)  # make random index to get picture
 
 for i in index:
     image = data[i, 1:258]
