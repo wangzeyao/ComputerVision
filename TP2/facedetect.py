@@ -1,4 +1,3 @@
-
 """
 face detection using haar cascades
 

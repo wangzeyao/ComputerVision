@@ -16,3 +16,5 @@ TP2/trained.xml
 TP2/model1
 TP2/.idea/workspace.xml
 TP2/__pycache__/letter_recog_NN.cpython-36.pyc
+TP2/.idea/workspace.xml
+*.pyc
